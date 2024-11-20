@@ -1,38 +1,39 @@
-import string
-
-class WordsFinder:
-    def __init__(self, *file_names):
-        self.file_names = file_names
-
-    def get_all_words(self):
-        all_words = {}
-        for file_name in self.file_names:
-            with open(file_name, 'r', encoding='utf-8') as file:
-                text = file.read().lower()
-                text = text.translate(str.maketrans('', '', string.punctuation.replace('-', '')))
-                words = text.split()
-                all_words[file_name] = words
-        return all_words
-
-    def find(self, word):
-        results = {}
-        all_words = self.get_all_words()
-        for file_name, words in all_words.items():
-            if word.lower() in words:
-                results[file_name] = words.index(word.lower()) + 1  # Позиция с 1
-        return results
-
-    def count(self, word):
-        results = {}
-        all_words = self.get_all_words()
-        for file_name, words in all_words.items():
-            count = words.count(word.lower())
-            if count > 0:
-                results[file_name] = count
-        return results
+import threading
+import time
+enemies = 100
 
 
-finder2 = WordsFinder('test_file.txt')
-print(finder2.get_all_words())
-print(finder2.find('TEXT'))
-print(finder2.count('teXT'))
+class Knight(threading.Thread):
+    def __init__(self, name, power):
+        super().__init__()
+        self.name = name
+        self.power = power
+        self.enemies = enemies
+        self.days = 0
+
+    def run(self):
+        print(f"{self.name}, на нас напали!")
+        while self.enemies > 0:
+            time.sleep(1)
+            self.enemies -= self.power
+            self.enemies = max(self.enemies, 0)
+            self.days += 1
+            print(f"{self.name} сражается {self.days}..., осталось {self.enemies} воинов.")
+
+        print(f"{self.name} одержал победу спустя {self.days} дня(ей)!")
+
+
+
+knight1 = Knight(name="Sir Galahad", power=10)
+knight2 = Knight(name="Sir Lancelot", power=20)
+
+
+knight1.start()
+knight2.start()
+
+
+knight1.join()
+knight2.join()
+
+
+print("Битвы завершены!")
